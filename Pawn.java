@@ -1,10 +1,26 @@
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
 
 public class Pawn extends Piece{
 
     private boolean hasMoved;
 
+
+    private static BufferedImage whiteImg;
+    private static BufferedImage blackImg;
+
+    static {
+        try {
+            whiteImg = ImageIO.read(new File("images/pawn-white.png"));
+            blackImg = ImageIO.read(new File("images/pawn-black.png"));
+        } catch (IOException e) {
+            System.out.println("Failed to load pawn images: " + e.getMessage());
+        }
+    }
     public Pawn(int t){
         super(t);
         hasMoved=false;
@@ -13,18 +29,45 @@ public class Pawn extends Piece{
     @Override
     public ArrayList<int[]> findLegalMoves(int row, int col, Piece[][] grid) {
         ArrayList<int[]> moves = new ArrayList<>();
-        if(grid[row][col+1]==null){
-            moves.add(new int[] {row,col+1});
+        int dir = (getColor() == 0) ? -1 : 1; 
+        int nextRow = row + dir;
+    
+        
+        if (inBounds(nextRow, col) && grid[nextRow][col] == null) {
+            moves.add(new int[]{nextRow, col});
+    
+            int twoForward = row + 2 * dir;
+            if (!hasMoved && inBounds(twoForward, col) && grid[twoForward][col] == null) {
+                moves.add(new int[]{twoForward, col});
+            }
         }
-        if(!hasMoved && grid[row][col+2]==null){
-            moves.add(new int[] {row,col+2});
+    
+        for (int dc = -1; dc <= 1; dc += 2) {
+            int diagCol = col + dc;
+            if (super.inBounds(nextRow, diagCol)) {
+                Piece target = grid[nextRow][diagCol];
+                if (target != null && target.getColor() != getColor()) {
+                    moves.add(new int[]{nextRow, diagCol});
+                }
+            }
         }
+    
         return moves;
+    }
+    
+
+
+    public void setHasMoved(){
+        hasMoved=true;
     }
 
     @Override
-    public void drawMe(Graphics g) {
+    public void drawMe(Graphics g, int r, int c) {
         //draw the pawn
+        int x = c*95; int y = r*95;
+
+        BufferedImage img = (super.getColor() == 0) ? whiteImg : blackImg;
+        g.drawImage(img, x, y,95,95, null);
     }
 
 }

@@ -5,13 +5,18 @@ public abstract class Piece {
     private int team; // 0:white 1:black
 
     public Piece(int t){
-        team=1;
+        team=t;
+
     }
 
     public abstract ArrayList<int[]> findLegalMoves(int row, int col, Piece[][] grid);
-    public abstract void drawMe(Graphics g);
+    public abstract void drawMe(Graphics g, int r, int c);
 
-    public void selectPiece(){
+    public int getColor(){
+        return team;
+    }
 
+    protected boolean inBounds(int r, int c) {
+        return r >= 0 && r < 8 && c >= 0 && c < 8;
     }
 }
