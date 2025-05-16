@@ -18,7 +18,7 @@ public class Rook extends Piece{
             whiteImg = ImageIO.read(new File("images/rook-white.png"));
             blackImg = ImageIO.read(new File("images/rook-black.png"));
         } catch (IOException e) {
-            System.out.println("Failed to load pawn images: " + e.getMessage());
+            System.out.println("Failed to load rook images: " + e.getMessage());
         }
     }
 

@@ -1,8 +1,5 @@
-import java.awt.*;
-
 public class BoardGame {
     private Piece[][] board;
-    private Color white, green;
 
     public BoardGame(){
         board = new Piece[8][8];
@@ -12,15 +9,18 @@ public class BoardGame {
         for(int i=0; i<board[6].length; i++){
             board[6][i] = new Pawn(0);
         }
-        board[0][4] = new King(1);
+        board[0][3] = new King(1);
         board[7][3] = new King(0);
         board[0][0] = new Rook(1);
         board[0][7] = new Rook(1);
         board[7][0] = new Rook(0);
         board[7][7] = new Rook(0);
-
-        white = new Color(235,236,208);
-        green = new Color(115,149,82);
+        board[0][2] = new Bishop(1);
+        board[0][5] = new Bishop(1);
+        board[7][2] = new Bishop(0);
+        board[7][5] = new Bishop(0);
+        board[0][4] = new Queen(1);
+        board[7][4] = new Queen(0);
         
 
     }
@@ -49,8 +49,7 @@ public class BoardGame {
         if (movingPiece instanceof Pawn pawn) {
             pawn.setHasMoved();
             if(movingPiece.getColor()*7==toRow){
-                //board[toRow][toCol] = new Queen(movingPiece.getColor());
-                board[toRow][toCol] = new Pawn(1); // waiting for queen to be added
+                board[toRow][toCol] = new Queen(movingPiece.getColor());
             }
         }
         if(capturedPiece!=null && capturedPiece instanceof King){

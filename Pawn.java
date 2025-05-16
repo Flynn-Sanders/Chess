@@ -31,13 +31,13 @@ public class Pawn extends Piece{
     @Override
     public ArrayList<int[]> findLegalMoves(int row, int col, Piece[][] grid) {
         ArrayList<int[]> moves = new ArrayList<>();
-        int nextRow = row + 1;
+        int nextRow = row -1 ;
     
         
         if (inBounds(nextRow, col) && grid[nextRow][col] == null) {
             moves.add(new int[]{nextRow, col});
     
-            int twoForward = row + 2 ;
+            int twoForward = row - 2 ;
             if (!hasMoved && inBounds(twoForward, col) && grid[twoForward][col] == null) {
                 moves.add(new int[]{twoForward, col});
             }
