@@ -1,3 +1,5 @@
+
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -29,14 +31,13 @@ public class Pawn extends Piece{
     @Override
     public ArrayList<int[]> findLegalMoves(int row, int col, Piece[][] grid) {
         ArrayList<int[]> moves = new ArrayList<>();
-        int dir = (getColor() == 0) ? -1 : 1; 
-        int nextRow = row + dir;
+        int nextRow = row + 1;
     
         
         if (inBounds(nextRow, col) && grid[nextRow][col] == null) {
             moves.add(new int[]{nextRow, col});
     
-            int twoForward = row + 2 * dir;
+            int twoForward = row + 2 ;
             if (!hasMoved && inBounds(twoForward, col) && grid[twoForward][col] == null) {
                 moves.add(new int[]{twoForward, col});
             }
@@ -63,7 +64,7 @@ public class Pawn extends Piece{
 
     @Override
     public void drawMe(Graphics g, int r, int c) {
-        //draw the pawn
+        
         int x = c*95; int y = r*95;
 
         BufferedImage img = (super.getColor() == 0) ? whiteImg : blackImg;

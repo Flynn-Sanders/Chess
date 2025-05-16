@@ -7,9 +7,10 @@ import java.util.ArrayList;
 import javax.swing.*;
 
 public class Screen extends JPanel implements ActionListener, MouseListener{
-    private Chess game;
+    private BoardGame game;
     private boolean started = false, isSelecting = false;
-    private JButton start;
+    private JButton start,restart;
+    private int moves = 0;
 
 
     private int selectedRow = -1, selectedCol=-1, turn =0;
@@ -22,11 +23,16 @@ public class Screen extends JPanel implements ActionListener, MouseListener{
     public Screen(){
         addMouseListener(this);
         setLayout(null);
-        game = new Chess();
+        game = new BoardGame();
         start= new JButton("Start");
         start.setBounds(280, 400, 200,60);
         this.add(start);
         start.addActionListener(this);
+        restart= new JButton("Restart");
+        restart.setBounds(280, 400, 200,60);
+        this.add(restart);
+        restart.addActionListener(this);
+        restart.setVisible(false);
     }   
 
     @Override
@@ -101,6 +107,13 @@ public class Screen extends JPanel implements ActionListener, MouseListener{
         if(e.getSource()==start){
             started=true;
         }
+        else if(e.getSource()==restart){
+            started=false;
+            moves=0;
+            game=new BoardGame();
+            turn=0;
+            restart.setVisible(false);
+        }
         repaint();
     }
 
@@ -136,9 +149,18 @@ public class Screen extends JPanel implements ActionListener, MouseListener{
                 }
 
                 if(isLegal){
-                    game.movePiece(selectedRow, selectedCol, row, col);
-                    turn = (turn == 0) ? 1 : 0;
-
+                    moves++;
+                    if(game.movePiece(selectedRow, selectedCol, row, col)==0)
+                    {
+                        turn = (turn == 0) ? 1 : 0;
+                        game.flipBoard();
+                    }
+                    else{
+                        String text = (turn==0) ? "White" : "Black";
+                        System.out.println(text+" wins by capturing the king! turns played: "+moves/2);
+                        turn=-1;
+                        restart.setVisible(true);
+                    }
                     selectedRow = selectedCol = -1;
                     legalMoves.clear();
                     isSelecting = false;
