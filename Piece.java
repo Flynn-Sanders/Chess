@@ -10,8 +10,13 @@ public abstract class Piece {
 
     }
 
+    public enum PieceType{
+        PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING
+    }
+
     public abstract ArrayList<int[]> findLegalMoves(int row, int col, Piece[][] grid);
     public abstract void drawMe(Graphics g, int r, int c);
+    public abstract PieceType getType();
 
     public int getColor(){
         return team;

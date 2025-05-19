@@ -48,5 +48,10 @@ public class King extends Piece{
         BufferedImage img = (super.getColor() == 0) ? whiteImg : blackImg;
         g.drawImage(img, x, y,95,95, null);
     }
+
+    @Override
+    public PieceType getType(){
+        return PieceType.KING;
+    }
     
 }

@@ -10,7 +10,7 @@ import javax.imageio.ImageIO;
 public class Pawn extends Piece{
 
     private boolean hasMoved;
-
+    private boolean twoSqauresMovedLastTurn = false;
 
     private static BufferedImage whiteImg;
     private static BufferedImage blackImg;
@@ -43,12 +43,21 @@ public class Pawn extends Piece{
             }
         }
     
-        for (int dc = -1; dc <= 1; dc += 2) {
+        for (int dc = -1; dc<=1; dc+=2) {
             int diagCol = col + dc;
             if (super.inBounds(nextRow, diagCol)) {
                 Piece target = grid[nextRow][diagCol];
                 if (target != null && target.getColor() != getColor()) {
                     moves.add(new int[]{nextRow, diagCol});
+                }
+            }
+        }
+
+        for(int dc = -1; dc<=1; dc+=2){
+            if(super.inBounds(row,col+dc)){
+                Piece p = grid[row][col+dc];
+                if(p instanceof Pawn pawn && pawn.isEnPassantable()){
+                    moves.add(new int[] {row-1, col+dc});
                 }
             }
         }
@@ -58,8 +67,14 @@ public class Pawn extends Piece{
     
 
 
-    public void setHasMoved(){
-        hasMoved=true;
+    public void move(int fromRow, int toRow){
+        int dist = Math.abs(toRow - fromRow);
+        twoSqauresMovedLastTurn = (dist == 2 && !hasMoved);
+        hasMoved = true;
+    }
+
+    public void clearEnPassant(){
+        twoSqauresMovedLastTurn = false;
     }
 
     @Override
@@ -69,6 +84,14 @@ public class Pawn extends Piece{
 
         BufferedImage img = (super.getColor() == 0) ? whiteImg : blackImg;
         g.drawImage(img, x, y,95,95, null);
+    }
+
+    public boolean isEnPassantable() {
+        return twoSqauresMovedLastTurn;
+    }
+    @Override
+    public PieceType getType(){
+        return PieceType.PAWN;
     }
 
 }
