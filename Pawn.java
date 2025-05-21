@@ -31,13 +31,14 @@ public class Pawn extends Piece{
     public ArrayList<int[]> findLegalMoves(int row, int col, BoardGame board) {
         ArrayList<int[]> moves = new ArrayList<>();
         Piece[][] grid = board.getBoardState();
-        int nextRow = row -1 ;
-    
+        int dir = (super.getColor()==0) ? -1 : 1;
+        int nextRow = row + dir ;
+        int twoForward = row + 2*dir ;
         
         if (inBounds(nextRow, col) && grid[nextRow][col] == null) {
             moves.add(new int[]{nextRow, col});
     
-            int twoForward = row - 2 ;
+            
             if (!hasMoved && inBounds(twoForward, col) && grid[twoForward][col] == null) {
                 moves.add(new int[]{twoForward, col});
             }
@@ -58,7 +59,7 @@ public class Pawn extends Piece{
             int epRow = enPassantSquare[0];
             int epCol = enPassantSquare[1];
     
-            if (row == epRow + 1 && Math.abs(col - epCol) == 1) {
+            if (nextRow == epRow && Math.abs(col - epCol) == 1) {
                 moves.add(new int[]{epRow, epCol});
             }   
         }

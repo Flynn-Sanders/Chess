@@ -43,16 +43,16 @@ public class King extends Piece{
         }
 
         if(!hasMoved){
-            Piece rK = grid[row][col-3];
-            Piece rQ = grid[row][col+4];
+            Piece rK = grid[row][col+3];
+            Piece rQ = grid[row][col-4];
             if(rK instanceof Rook r){
-                if(!r.getHasMoved()&&grid[row][col-2]==null&&grid[row][col-1]==null){
-                    moves.add(new int[] {row,col-2});
+                if(!r.getHasMoved()&&grid[row][col+1]==null&&grid[row][col+2]==null){
+                    moves.add(new int[] {row,col+2});
                 }
             }
-            if(rK instanceof Rook r&&grid[row][col+1]==null&&grid[row][col+2]==null&&grid[row][col+3]==null){
-                if(!r.getHasMoved()){
-                    moves.add(new int[] {row,col+2});
+            if(rQ instanceof Rook r){
+                if(!r.getHasMoved()&&grid[row][col-1]==null&&grid[row][col-2]==null&&grid[row][col-3]==null){
+                    moves.add(new int[] {row,col-2});
                 }
             }
         }

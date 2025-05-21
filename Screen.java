@@ -11,6 +11,7 @@ public class Screen extends JPanel implements ActionListener, MouseListener{
     private boolean started = false, isSelecting = false;
     private JButton start,restart;
     private int moves = 0;
+    private boolean isWhiteTurn;
 
 
     private int selectedRow = -1, selectedCol=-1, turn =0;
@@ -153,11 +154,11 @@ public class Screen extends JPanel implements ActionListener, MouseListener{
                     if(game.movePiece(selectedRow, selectedCol, row, col)==0)
                     {
                         turn = (turn == 0) ? 1 : 0;
-                        game.flipBoard();
+                        isWhiteTurn = moves%2==0;
                     }
                     else{
                         String text = (turn==0) ? "White" : "Black";
-                        System.out.println(text+" wins by capturing the king! turns played: "+moves/2);
+                        System.out.println(text+" wins by capturing the king! Turns played: "+moves/2+", Moves made: "+moves);
                         turn=-1;
                         restart.setVisible(true);
                     }

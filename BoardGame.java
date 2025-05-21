@@ -33,19 +33,6 @@ public class BoardGame {
     public Piece[][] getBoardState(){
         return board;
     }
-
-    public void flipBoard(){
-        Piece[][] newBoard = new Piece[8][8];
-        for(int r = 0 ; r<board.length; r++){
-            for(int c=0; c<board[r].length; c++){
-                newBoard[7-r][7-c] = board[r][c];
-            }
-        }
-        board=newBoard;
-        if(enPassantSquare!=null){
-            enPassantSquare = new int[] {7-enPassantSquare[0], 7-enPassantSquare[1]};
-        }
-    }
     public int[] getEnPassantSquare() {
         return enPassantSquare;
     }
@@ -66,7 +53,8 @@ public class BoardGame {
                 enPassantSquare = null;
             }
             if(fromCol!=toCol && capturedPiece==null){
-                board[toRow+1][toCol] = null;
+                int dir = (movingPiece.getColor() == 0) ? -1 : 1;
+                board[toRow - dir][toCol] = null;
             }
             if(movingPiece.getColor()*7==toRow){
                 board[toRow][toCol] = new Queen(movingPiece.getColor());
@@ -74,6 +62,16 @@ public class BoardGame {
         }
 
         if(movingPiece instanceof King k){
+            if(Math.abs(toCol-fromCol)==2){
+                int rookFrom = fromCol+3;
+                int rookTo = fromCol+1;
+                if((toCol-fromCol) ==-4){
+                    rookFrom = fromCol-4;
+                    rookTo = fromCol-1;
+                }
+                movePiece(fromRow, rookFrom, toRow, rookTo);
+
+            }
             k.setHasMoved();
         }
         if(movingPiece instanceof  Rook r){
