@@ -9,7 +9,7 @@ import javax.imageio.ImageIO;
 
 public class Rook extends Piece{
 
-    private boolean hasMoved=false;
+    private boolean hasMoved;
 
     private static BufferedImage whiteImg;
     private static BufferedImage blackImg;
@@ -28,9 +28,10 @@ public class Rook extends Piece{
     }
 
     @Override
-    public ArrayList<int[]> findLegalMoves(int row, int col,BoardGame board) {
-        ArrayList<int[]> moves = new ArrayList<>();
+    public ArrayList<int[]> findLegalMoves(int row, int col,BoardGame board, boolean simulate) {
+        ArrayList<int[]> psuedoMoves = new ArrayList<>();
         Piece[][] grid = board.getBoardState();
+        hasMoved=false;
        
         int[][] directions = {
             {-1, 0}, // u
@@ -46,10 +47,10 @@ public class Rook extends Piece{
             while (r >= 0 && r < 8 && c >= 0 && c < 8) {
                 Piece p = grid[r][c];
                 if (p == null) {
-                    moves.add(new int[] {r, c});
+                    psuedoMoves.add(new int[] {r, c});
                 } else {
                     if (p.getColor() != super.getColor()) {
-                        moves.add(new int[] {r, c});
+                        psuedoMoves.add(new int[] {r, c});
                     }
                     break;
                 }
@@ -59,7 +60,16 @@ public class Rook extends Piece{
             }
         }
     
-        return moves;
+        ArrayList<int[]> legalMoves = new ArrayList<>();
+
+        for (int[] move : psuedoMoves) {
+            BoardGame simulation = board.simulateMove(row, col, move[0], move[1]);
+            if (!simulation.isKingInCheck(this.getColor())) {
+                legalMoves.add(move);
+            }
+        }
+
+        return legalMoves;
     }
 
     @Override
@@ -79,4 +89,10 @@ public class Rook extends Piece{
     public boolean getHasMoved(){
         return hasMoved;
     }
+    @Override
+    public Piece copy() {
+    Rook r = new Rook(this.getColor());
+    r.hasMoved = this.hasMoved;
+    return r;
+}
 }

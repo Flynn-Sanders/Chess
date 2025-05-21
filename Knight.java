@@ -23,8 +23,8 @@ public class Knight extends Piece{
     }
 
     @Override
-    public ArrayList<int[]> findLegalMoves(int row, int col, BoardGame board) {
-        ArrayList<int[]> moves = new ArrayList<>();
+    public ArrayList<int[]> findLegalMoves(int row, int col, BoardGame board, boolean simulate) {
+        ArrayList<int[]> psuedoMoves = new ArrayList<>();
         Piece[][] grid = board.getBoardState();
        
         int[][] directions = {
@@ -46,12 +46,21 @@ public class Knight extends Piece{
             if (r >= 0 && r < 8 && c >= 0 && c < 8) {
                 Piece p = grid[r][c];
                 if (p == null || p.getColor()!=super.getColor()) {
-                    moves.add(new int[] {r, c});
+                    psuedoMoves.add(new int[] {r, c});
                 } 
             }
         }
     
-        return moves;
+        ArrayList<int[]> legalMoves = new ArrayList<>();
+
+        for (int[] move : psuedoMoves) {
+            BoardGame simulation = board.simulateMove(row, col, move[0], move[1]);
+            if (!simulation.isKingInCheck(this.getColor())) {
+                legalMoves.add(move);
+            }
+        }
+
+        return legalMoves;
     }
 
     @Override
@@ -65,5 +74,9 @@ public class Knight extends Piece{
     public PieceType getType(){
         return PieceType.KNIGHT;
     }
-    
+    @Override
+    public Piece copy() {
+        Knight n = new Knight(this.getColor());
+        return n;
+    }
 }

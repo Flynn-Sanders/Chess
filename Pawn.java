@@ -28,19 +28,19 @@ public class Pawn extends Piece{
     }
 
     @Override
-    public ArrayList<int[]> findLegalMoves(int row, int col, BoardGame board) {
-        ArrayList<int[]> moves = new ArrayList<>();
+    public ArrayList<int[]> findLegalMoves(int row, int col, BoardGame board, boolean simulate) {
+        ArrayList<int[]> psuedoMoves = new ArrayList<>();
         Piece[][] grid = board.getBoardState();
         int dir = (super.getColor()==0) ? -1 : 1;
         int nextRow = row + dir ;
         int twoForward = row + 2*dir ;
         
         if (inBounds(nextRow, col) && grid[nextRow][col] == null) {
-            moves.add(new int[]{nextRow, col});
+            psuedoMoves.add(new int[]{nextRow, col});
     
             
             if (!hasMoved && inBounds(twoForward, col) && grid[twoForward][col] == null) {
-                moves.add(new int[]{twoForward, col});
+                psuedoMoves.add(new int[]{twoForward, col});
             }
         }
     
@@ -49,7 +49,7 @@ public class Pawn extends Piece{
             if (super.inBounds(nextRow, diagCol)) {
                 Piece target = grid[nextRow][diagCol];
                 if (target != null && target.getColor() != getColor()) {
-                    moves.add(new int[]{nextRow, diagCol});
+                    psuedoMoves.add(new int[]{nextRow, diagCol});
                 }
             }
         }
@@ -60,11 +60,25 @@ public class Pawn extends Piece{
             int epCol = enPassantSquare[1];
     
             if (nextRow == epRow && Math.abs(col - epCol) == 1) {
-                moves.add(new int[]{epRow, epCol});
+                int behindRow = epRow - dir;
+                Piece passedPawn = board.getBoardState()[behindRow][epCol];
+
+                if (passedPawn instanceof Pawn && passedPawn.getColor() != this.getColor()) {
+                    psuedoMoves.add(new int[]{epRow, epCol});
+            }
             }   
         }
     
-        return moves;
+        ArrayList<int[]> legalMoves = new ArrayList<>();
+
+        for (int[] move : psuedoMoves) {
+            BoardGame simulation = board.simulateMove(row, col, move[0], move[1]);
+            if (!simulation.isKingInCheck(this.getColor())) {
+                legalMoves.add(move);
+            }
+        }
+
+        return legalMoves;
     }
     
 
@@ -87,5 +101,10 @@ public class Pawn extends Piece{
     public void setHasMoved(){
         hasMoved=true;
     }
-
+    @Override
+    public Piece copy() {
+        Pawn p = new Pawn(this.getColor());
+        p.hasMoved = this.hasMoved;
+        return p;
+    }
 }

@@ -1,3 +1,6 @@
+
+import java.util.ArrayList;
+
 public class BoardGame {
     private Piece[][] board;
     private int[] enPassantSquare=null; 
@@ -84,5 +87,62 @@ public class BoardGame {
 
         return (isKingCaptured) ? 1 : 0;
 
+    }
+
+    public boolean isKingInCheck(int team){
+        int kingRow=-1; int kingCol=-1;
+        for(int r=0; r<board.length; r++){
+            for(int c=0; c<board[r].length; c++){
+                if(board[r][c] instanceof King k && k.getColor()==team){
+                    kingRow=r; kingCol = c; break;
+                }
+            }
+        }
+        
+        for(int r = 0; r<board.length; r++){
+            for(int c=0; c<board[r].length; c++){
+                Piece p = board[r][c];
+                if(p!=null && p.getColor()!= team){
+                    ArrayList<int[]> moves = p.findLegalMoves(r,c,this,false);
+                    for(int[] move : moves){
+                        if(move[0]==kingRow && move[1]==kingCol){
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    public BoardGame simulateMove(int fromRow, int fromCol, int toRow, int toCol) {
+        BoardGame clone = this.deepCopy(); 
+        clone.board[toRow][toCol] = clone.board[fromRow][fromCol];
+        clone.board[fromRow][fromCol] = null;
+    
+        // clone.enPassantSquare handling in future?
+        clone.enPassantSquare = null;
+    
+        return clone;
+    }
+
+    public BoardGame deepCopy() {
+        BoardGame copy = new BoardGame();
+        Piece[][] newBoard = new Piece[8][8];
+    
+        for (int r = 0; r < 8; r++) {
+            for (int c = 0; c < 8; c++) {
+                if (this.board[r][c] != null) {
+                    newBoard[r][c] = this.board[r][c].copy();
+                }
+            }
+        }
+    
+        copy.board = newBoard;
+    
+        if (this.enPassantSquare != null) {
+            copy.enPassantSquare = new int[]{this.enPassantSquare[0], this.enPassantSquare[1]};
+        }
+    
+        return copy;
     }
 }

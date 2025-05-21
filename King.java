@@ -27,8 +27,8 @@ public class King extends Piece{
     }
     
         @Override
-    public ArrayList<int[]> findLegalMoves(int row, int col, BoardGame board) {
-        ArrayList<int[]> moves = new ArrayList<>();
+    public ArrayList<int[]> findLegalMoves(int row, int col, BoardGame board, boolean simulate) {
+        ArrayList<int[]> psuedoMoves = new ArrayList<>();
         Piece[][] grid = board.getBoardState();
         for(int r = -1; r<=1; r++){
             for(int c=-1; c<=1; c++){
@@ -36,7 +36,7 @@ public class King extends Piece{
                 if(newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8){
                     Piece p = grid[newRow][newCol];
                     if(p==null || p.getColor()!=super.getColor()){
-                        moves.add(new int[] {newRow,newCol});
+                        psuedoMoves.add(new int[] {newRow,newCol});
                     }
                 }
             }
@@ -47,16 +47,25 @@ public class King extends Piece{
             Piece rQ = grid[row][col-4];
             if(rK instanceof Rook r){
                 if(!r.getHasMoved()&&grid[row][col+1]==null&&grid[row][col+2]==null){
-                    moves.add(new int[] {row,col+2});
+                    psuedoMoves.add(new int[] {row,col+2});
                 }
             }
             if(rQ instanceof Rook r){
                 if(!r.getHasMoved()&&grid[row][col-1]==null&&grid[row][col-2]==null&&grid[row][col-3]==null){
-                    moves.add(new int[] {row,col-2});
+                    psuedoMoves.add(new int[] {row,col-2});
                 }
             }
         }
-        return moves;
+        ArrayList<int[]> legalMoves = new ArrayList<>();
+
+        for (int[] move : psuedoMoves) {
+            BoardGame simulation = board.simulateMove(row, col, move[0], move[1]);
+            if (!simulation.isKingInCheck(this.getColor())) {
+                legalMoves.add(move);
+            }
+        }
+
+        return legalMoves;
     }
 
     @Override
@@ -73,5 +82,11 @@ public class King extends Piece{
     }
     public void setHasMoved(){
         hasMoved=true;
+    }
+    @Override
+    public Piece copy() {
+        King k = new King(this.getColor());
+        k.hasMoved = this.hasMoved;
+        return k;
     }
 }

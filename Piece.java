@@ -14,7 +14,7 @@ public abstract class Piece {
         PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING
     }
 
-    public abstract ArrayList<int[]> findLegalMoves(int row, int col, BoardGame board);
+    public abstract ArrayList<int[]> findLegalMoves(int row, int col, BoardGame board, boolean simulate);
     public abstract void drawMe(Graphics g, int r, int c);
     public abstract PieceType getType();
 
@@ -25,4 +25,5 @@ public abstract class Piece {
     protected boolean inBounds(int r, int c) {
         return r >= 0 && r < 8 && c >= 0 && c < 8;
     }
+    public abstract Piece copy();
 }
