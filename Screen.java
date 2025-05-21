@@ -137,7 +137,7 @@ public class Screen extends JPanel implements ActionListener, MouseListener{
             if (p != null&&p.getColor()==turn) {
                     selectedRow = row;
                     selectedCol = col;
-                    legalMoves = p.findLegalMoves(row, col, game.getBoardState());
+                    legalMoves = p.findLegalMoves(row, col, game);
                     isSelecting = true;
             }
             else if (isSelecting){

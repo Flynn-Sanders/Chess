@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 
 public class Rook extends Piece{
 
+    private boolean hasMoved=false;
 
     private static BufferedImage whiteImg;
     private static BufferedImage blackImg;
@@ -27,9 +28,9 @@ public class Rook extends Piece{
     }
 
     @Override
-    public ArrayList<int[]> findLegalMoves(int row, int col, Piece[][] grid) {
+    public ArrayList<int[]> findLegalMoves(int row, int col,BoardGame board) {
         ArrayList<int[]> moves = new ArrayList<>();
-    
+        Piece[][] grid = board.getBoardState();
        
         int[][] directions = {
             {-1, 0}, // u
@@ -71,5 +72,11 @@ public class Rook extends Piece{
     @Override
     public PieceType getType(){
         return PieceType.ROOK;
+    }
+    public void setHasMoved(){
+        hasMoved=true;
+    }
+    public boolean getHasMoved(){
+        return hasMoved;
     }
 }

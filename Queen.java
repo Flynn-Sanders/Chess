@@ -27,9 +27,9 @@ public class Queen extends Piece{
     }
 
     @Override
-    public ArrayList<int[]> findLegalMoves(int row, int col, Piece[][] grid) {
+    public ArrayList<int[]> findLegalMoves(int row, int col, BoardGame board) {
         ArrayList<int[]> moves = new ArrayList<>();
-    
+        Piece[][] grid = board.getBoardState();
        
         int[][] directions = {
             //ROOK

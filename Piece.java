@@ -14,7 +14,7 @@ public abstract class Piece {
         PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING
     }
 
-    public abstract ArrayList<int[]> findLegalMoves(int row, int col, Piece[][] grid);
+    public abstract ArrayList<int[]> findLegalMoves(int row, int col, BoardGame board);
     public abstract void drawMe(Graphics g, int r, int c);
     public abstract PieceType getType();
 

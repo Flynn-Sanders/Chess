@@ -1,5 +1,6 @@
 public class BoardGame {
     private Piece[][] board;
+    private int[] enPassantSquare=null; 
 
     public BoardGame(){
         board = new Piece[8][8];
@@ -41,16 +42,12 @@ public class BoardGame {
             }
         }
         board=newBoard;
-    }
-    public void clearEnPassantFlags(int currentColor) {
-        for (int r = 0; r < 8; r++) {
-            for (int c = 0; c < 8; c++) {
-                Piece p = board[r][c];
-                if (p instanceof Pawn && p.getColor() != currentColor) {
-                    ((Pawn)p).clearEnPassant();
-                }
-            }
+        if(enPassantSquare!=null){
+            enPassantSquare = new int[] {7-enPassantSquare[0], 7-enPassantSquare[1]};
         }
+    }
+    public int[] getEnPassantSquare() {
+        return enPassantSquare;
     }
 
     public int movePiece(int fromRow, int fromCol, int toRow, int toCol){
@@ -61,24 +58,33 @@ public class BoardGame {
         board[fromRow][fromCol] = null;
 
         if (movingPiece instanceof Pawn pawn) {
+            pawn.setHasMoved();
+            if (Math.abs(toRow - fromRow) == 2) {
+                int enPassantRow = (fromRow + toRow) / 2;
+                enPassantSquare = new int[]{enPassantRow, toCol};
+            } else {
+                enPassantSquare = null;
+            }
             if(fromCol!=toCol && capturedPiece==null){
                 board[toRow+1][toCol] = null;
             }
-            pawn.move(fromRow, toRow);
-            
             if(movingPiece.getColor()*7==toRow){
                 board[toRow][toCol] = new Queen(movingPiece.getColor());
             }
+        }
+
+        if(movingPiece instanceof King k){
+            k.setHasMoved();
+        }
+        if(movingPiece instanceof  Rook r){
+            r.setHasMoved();
         }
         if(capturedPiece!=null && capturedPiece instanceof King){
             isKingCaptured=true;
         }
 
 
-        if(isKingCaptured){
-            return 1;
-        }
-        return 0;
+        return (isKingCaptured) ? 1 : 0;
 
     }
 }

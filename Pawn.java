@@ -10,7 +10,6 @@ import javax.imageio.ImageIO;
 public class Pawn extends Piece{
 
     private boolean hasMoved;
-    private boolean twoSqauresMovedLastTurn = false;
 
     private static BufferedImage whiteImg;
     private static BufferedImage blackImg;
@@ -29,8 +28,9 @@ public class Pawn extends Piece{
     }
 
     @Override
-    public ArrayList<int[]> findLegalMoves(int row, int col, Piece[][] grid) {
+    public ArrayList<int[]> findLegalMoves(int row, int col, BoardGame board) {
         ArrayList<int[]> moves = new ArrayList<>();
+        Piece[][] grid = board.getBoardState();
         int nextRow = row -1 ;
     
         
@@ -53,13 +53,14 @@ public class Pawn extends Piece{
             }
         }
 
-        for(int dc = -1; dc<=1; dc+=2){
-            if(super.inBounds(row,col+dc)){
-                Piece p = grid[row][col+dc];
-                if(p instanceof Pawn pawn && pawn.isEnPassantable()){
-                    moves.add(new int[] {row-1, col+dc});
-                }
-            }
+        int[] enPassantSquare = board.getEnPassantSquare();
+        if (enPassantSquare != null) {
+            int epRow = enPassantSquare[0];
+            int epCol = enPassantSquare[1];
+    
+            if (row == epRow + 1 && Math.abs(col - epCol) == 1) {
+                moves.add(new int[]{epRow, epCol});
+            }   
         }
     
         return moves;
@@ -67,15 +68,7 @@ public class Pawn extends Piece{
     
 
 
-    public void move(int fromRow, int toRow){
-        int dist = Math.abs(toRow - fromRow);
-        twoSqauresMovedLastTurn = (dist == 2 && !hasMoved);
-        hasMoved = true;
-    }
-
-    public void clearEnPassant(){
-        twoSqauresMovedLastTurn = false;
-    }
+   
 
     @Override
     public void drawMe(Graphics g, int r, int c) {
@@ -85,13 +78,13 @@ public class Pawn extends Piece{
         BufferedImage img = (super.getColor() == 0) ? whiteImg : blackImg;
         g.drawImage(img, x, y,95,95, null);
     }
-
-    public boolean isEnPassantable() {
-        return twoSqauresMovedLastTurn;
-    }
     @Override
     public PieceType getType(){
         return PieceType.PAWN;
+    }
+
+    public void setHasMoved(){
+        hasMoved=true;
     }
 
 }

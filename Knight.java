@@ -14,7 +14,7 @@ public class Knight extends Piece{
             whiteImg = ImageIO.read(new File("images/knight-white.png"));
             blackImg = ImageIO.read(new File("images/knight-black.png"));
         } catch (IOException e) {
-            System.out.println("Failed to load bishop images: " + e.getMessage());
+            System.out.println("Failed to load knight images: " + e.getMessage());
         }
     }
 
@@ -23,9 +23,9 @@ public class Knight extends Piece{
     }
 
     @Override
-    public ArrayList<int[]> findLegalMoves(int row, int col, Piece[][] grid) {
+    public ArrayList<int[]> findLegalMoves(int row, int col, BoardGame board) {
         ArrayList<int[]> moves = new ArrayList<>();
-    
+        Piece[][] grid = board.getBoardState();
        
         int[][] directions = {
             {-2, -1}, // uul

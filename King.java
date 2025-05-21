@@ -12,6 +12,8 @@ public class King extends Piece{
     private static BufferedImage whiteImg;
     private static BufferedImage blackImg;
 
+    private boolean hasMoved=false;
+
     static {
         try {
             whiteImg = ImageIO.read(new File("images/king-white.png"));
@@ -25,8 +27,9 @@ public class King extends Piece{
     }
     
         @Override
-    public ArrayList<int[]> findLegalMoves(int row, int col, Piece[][] grid) {
+    public ArrayList<int[]> findLegalMoves(int row, int col, BoardGame board) {
         ArrayList<int[]> moves = new ArrayList<>();
+        Piece[][] grid = board.getBoardState();
         for(int r = -1; r<=1; r++){
             for(int c=-1; c<=1; c++){
                 int newRow = row+r; int newCol = col+c;
@@ -35,6 +38,21 @@ public class King extends Piece{
                     if(p==null || p.getColor()!=super.getColor()){
                         moves.add(new int[] {newRow,newCol});
                     }
+                }
+            }
+        }
+
+        if(!hasMoved){
+            Piece rK = grid[row][col-3];
+            Piece rQ = grid[row][col+4];
+            if(rK instanceof Rook r){
+                if(!r.getHasMoved()&&grid[row][col-2]==null&&grid[row][col-1]==null){
+                    moves.add(new int[] {row,col-2});
+                }
+            }
+            if(rK instanceof Rook r&&grid[row][col+1]==null&&grid[row][col+2]==null&&grid[row][col+3]==null){
+                if(!r.getHasMoved()){
+                    moves.add(new int[] {row,col+2});
                 }
             }
         }
@@ -53,5 +71,7 @@ public class King extends Piece{
     public PieceType getType(){
         return PieceType.KING;
     }
-    
+    public void setHasMoved(){
+        hasMoved=true;
+    }
 }
