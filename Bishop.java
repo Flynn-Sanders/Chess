@@ -57,7 +57,9 @@ public class Bishop extends Piece{
                 c += dir[1];
             }
         }
-    
+        if(!simulate){
+            return psuedoMoves;
+        }
         ArrayList<int[]> legalMoves = new ArrayList<>();
 
         for (int[] move : psuedoMoves) {

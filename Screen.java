@@ -1,14 +1,16 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import javax.swing.*;
 
-public class Screen extends JPanel implements ActionListener, MouseListener{
+public class Screen extends JPanel implements ActionListener, MouseListener,KeyListener{
     private BoardGame game;
-    private boolean started = false, isSelecting = false;
+    private boolean started = false, isSelecting = false, ended=false, stalemate=false;
     private JButton start,restart;
     private int moves = 0;
     private boolean isWhiteTurn;
@@ -18,6 +20,7 @@ public class Screen extends JPanel implements ActionListener, MouseListener{
     private ArrayList<int[]> legalMoves = new ArrayList<>();
     
     private Font titleFont = new Font("Bebas Neue", Font.BOLD, 120);  // Use Impact if preferred
+    private Font endFont = new Font("Impact", Font.PLAIN, 60);  
     private Font descFont = new Font("Arial", Font.PLAIN, 40);  // Use Verdana if preferred
     
 
@@ -34,6 +37,8 @@ public class Screen extends JPanel implements ActionListener, MouseListener{
         this.add(restart);
         restart.addActionListener(this);
         restart.setVisible(false);
+        addKeyListener(this);
+        this.setFocusable(true);
     }   
 
     @Override
@@ -47,6 +52,37 @@ public class Screen extends JPanel implements ActionListener, MouseListener{
         start.setVisible(!started);
         if(!started){
             titleScreen(g);
+        }
+        else if(ended){
+            g.setColor(Color.BLACK);
+            g.fillRect(0, 0, 1000, 1000);
+            String text = (turn==0) ? "White wins by checkmate!" : "Black wins by checkmate!";
+            if(stalemate){
+                text="Stalemate!";
+            }
+            
+            FontMetrics metrics = g.getFontMetrics(endFont);
+            int textWidth = metrics.stringWidth(text);
+            int x = (getWidth() - textWidth) / 2;  
+            int y = 150;
+            g.setFont(endFont);
+            g.setColor(Color.white);
+            g.drawString(text, x, y);
+
+            text="Turns played:"+moves/2;
+            textWidth = metrics.stringWidth(text);
+            x = (getWidth() - textWidth) / 2;  
+            y = 200;
+            g.drawString(text, x, y);
+            text="Moves made: "+moves;
+            textWidth = metrics.stringWidth(text);
+            x = (getWidth() - textWidth) / 2;  
+            y = 250;
+            g.drawString(text, x, y);
+
+            turn=-1;
+            ended=true;
+            restart.setVisible(true);
         }
         else{
             drawBoard(g);
@@ -107,6 +143,8 @@ public class Screen extends JPanel implements ActionListener, MouseListener{
     public void actionPerformed(ActionEvent e) {
         if(e.getSource()==start){
             started=true;
+            stalemate=false;
+            ended=false;
         }
         else if(e.getSource()==restart){
             started=false;
@@ -138,7 +176,7 @@ public class Screen extends JPanel implements ActionListener, MouseListener{
             if (p != null&&p.getColor()==turn) {
                     selectedRow = row;
                     selectedCol = col;
-                    legalMoves = p.findLegalMoves(row, col, game);
+                    legalMoves = p.findLegalMoves(row, col, game,true);
                     isSelecting = true;
             }
             else if (isSelecting){
@@ -151,16 +189,18 @@ public class Screen extends JPanel implements ActionListener, MouseListener{
 
                 if(isLegal){
                     moves++;
-                    if(game.movePiece(selectedRow, selectedCol, row, col)==0)
+                    int move = game.movePiece(selectedRow, selectedCol, row, col);
+                    if(move==0)
                     {
                         turn = (turn == 0) ? 1 : 0;
                         isWhiteTurn = moves%2==0;
                     }
+                    else if(move==1){
+                        endGame();
+                    }
                     else{
-                        String text = (turn==0) ? "White" : "Black";
-                        System.out.println(text+" wins by capturing the king! Turns played: "+moves/2+", Moves made: "+moves);
-                        turn=-1;
-                        restart.setVisible(true);
+                        stalemate=true;
+                        endGame();
                     }
                     selectedRow = selectedCol = -1;
                     legalMoves.clear();
@@ -169,6 +209,9 @@ public class Screen extends JPanel implements ActionListener, MouseListener{
             }
         }
         repaint();
+    }
+    public void endGame(){
+        ended=true;
     }
 
 
@@ -180,6 +223,23 @@ public class Screen extends JPanel implements ActionListener, MouseListener{
     public void mouseEntered(MouseEvent e) {}
     @Override
     public void mouseExited(MouseEvent e) {}
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+       
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if(e.getKeyCode() == 112){
+            endGame();
+        }
+        repaint();
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+    }
 
    
 

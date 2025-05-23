@@ -68,7 +68,9 @@ public class Pawn extends Piece{
             }
             }   
         }
-    
+        if(!simulate){
+            return psuedoMoves;
+        }
         ArrayList<int[]> legalMoves = new ArrayList<>();
 
         for (int[] move : psuedoMoves) {

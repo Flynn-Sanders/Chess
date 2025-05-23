@@ -41,7 +41,9 @@ public class King extends Piece{
                 }
             }
         }
-
+        if(!simulate){
+            return psuedoMoves;
+        }
         if(!hasMoved){
             Piece rK = grid[row][col+3];
             Piece rQ = grid[row][col-4];
@@ -59,9 +61,22 @@ public class King extends Piece{
         ArrayList<int[]> legalMoves = new ArrayList<>();
 
         for (int[] move : psuedoMoves) {
-            BoardGame simulation = board.simulateMove(row, col, move[0], move[1]);
-            if (!simulation.isKingInCheck(this.getColor())) {
-                legalMoves.add(move);
+           
+            if (Math.abs(move[1] - col) == 2) { 
+                int step = (move[1] - col) / 2;
+    
+                BoardGame through1 = board.simulateMove(row, col, row, col + step);
+                BoardGame through2 = board.simulateMove(row, col, row, move[1]);
+    
+                if (!through1.isKingInCheck(this.getColor()) && !through2.isKingInCheck(this.getColor())) {
+                    legalMoves.add(move);
+                }
+            } 
+            else{
+                BoardGame simulation = board.simulateMove(row, col, move[0], move[1]);
+                if (!simulation.isKingInCheck(this.getColor())) {
+                    legalMoves.add(move);
+                }
             }
         }
 
