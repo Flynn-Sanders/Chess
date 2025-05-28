@@ -15,7 +15,7 @@ public abstract class Piece {
     }
 
     public abstract ArrayList<int[]> findLegalMoves(int row, int col, BoardGame board, boolean simulate);
-    public abstract void drawMe(Graphics g, int r, int c);
+    public abstract void drawMe(Graphics g, double r, double c);
     public abstract PieceType getType();
 
     public int getColor(){

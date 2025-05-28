@@ -1,4 +1,5 @@
 import java.awt.*;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -22,7 +23,13 @@ public class Screen extends JPanel implements ActionListener, MouseListener,KeyL
     private Font titleFont = new Font("Bebas Neue", Font.BOLD, 120);  // Use Impact if preferred
     private Font endFont = new Font("Impact", Font.PLAIN, 60);  
     private Font descFont = new Font("Arial", Font.PLAIN, 40);  // Use Verdana if preferred
-    
+
+    private boolean isAnimating = false;
+    private int animFromRow, animFromCol, animToRow, animToCol;
+    private float animProgress = 0.0f; // from 0.0 to 1.0
+    private Piece animatingPiece;
+    private Timer animationTimer;
+        
 
     public Screen(){
         addMouseListener(this);
@@ -89,40 +96,95 @@ public class Screen extends JPanel implements ActionListener, MouseListener,KeyL
         }
     }
 
-    private void drawBoard(Graphics g) {
-        Color white = new Color(235,236,208);
-        Color green = new Color(115,149,82);
 
+    private void drawBoard(Graphics g) {
+        Color white = new Color(235, 236, 208);
+        Color green = new Color(115, 149, 82);
+    
         for (int r = 0; r < 8; r++) {
             for (int c = 0; c < 8; c++) {
                 boolean light = (r + c) % 2 == 0;
                 g.setColor(light ? white : green);
-                g.fillRect(c*95, r*95, 95, 95);
+                g.fillRect(c * 95, r * 95, 95, 95);
             }
         }
-
-        
+    
         if (selectedRow != -1) {
-            g.setColor(new Color(255,255,0,128)); 
-            g.fillRect(selectedCol*95, selectedRow*95, 95, 95);
+            g.setColor(new Color(255, 255, 0, 128));
+            g.fillRect(selectedCol * 95, selectedRow * 95, 95, 95);
         }
-
-        
+    
         Piece[][] board = game.getBoardState();
+    
         for (int r = 0; r < 8; r++) {
             for (int c = 0; c < 8; c++) {
+                if (isAnimating && r == animFromRow && c == animFromCol) continue;
                 Piece p = board[r][c];
                 if (p != null) p.drawMe(g, r, c);
             }
         }
-
-        g.setColor(new Color(0,0,0,128));
+    
+        g.setColor(new Color(0, 0, 0, 128));
         for (int[] m : legalMoves) {
             int rr = m[0], cc = m[1];
-            int x = cc*95 + 95/2, y = rr*95 + 95/2;
-            g.fillOval(x-10, y-10, 20, 20);
+            int x = cc * 95 + 95 / 2, y = rr * 95 + 95 / 2;
+            g.fillOval(x - 10, y - 10, 20, 20);
+        }
+    
+        if (isAnimating && animatingPiece != null) {
+            int startX = animFromCol * 95;
+            int startY = animFromRow * 95;
+            int endX = animToCol * 95;
+            int endY = animToRow * 95;
+    
+            int currentX = (int) (startX + animProgress * (endX - startX));
+            int currentY = (int) (startY + animProgress * (endY - startY));
+    
+            animatingPiece.drawMe(g, currentY / 95.0, currentX / 95.0); 
         }
     }
+    public void handlePlayerMove(int fromRow, int fromCol, int toRow, int toCol) {
+        
+        isAnimating = true;
+        animProgress = 0f;
+        animFromRow = fromRow;
+        animFromCol = fromCol;
+        animToRow = toRow;
+        animToCol = toCol;
+        animatingPiece = game.getBoardState()[fromRow][fromCol];
+    
+        animationTimer = new Timer(10, e -> {
+            animProgress += 0.05f;  // Adjust speed here ( 0.05 for 20 frames)
+    
+            if (animProgress >= 1.0f) {
+                animationTimer.stop();
+                isAnimating = false;
+    
+                
+                int move = game.movePiece(fromRow, fromCol, toRow, toCol);
+                moves++;
+    
+                switch (move) {
+                    case 0 -> {
+                        turn = (turn == 0) ? 1 : 0;
+                        isWhiteTurn = moves % 2 == 0;
+                    }
+                    case 1 -> endGame(); // Checkmate
+                    default -> {
+                        stalemate = true;
+                        endGame(); // Stalemate
+                    }
+                }
+    
+                repaint();
+            }
+    
+            repaint(); // Repaint during animation
+        });
+    
+        animationTimer.start();
+    }
+    
 
     public void titleScreen(Graphics g){
         g.setColor(Color.black);
@@ -159,6 +221,7 @@ public class Screen extends JPanel implements ActionListener, MouseListener,KeyL
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        if (isAnimating) return;
         int col = e.getX() / 95;
         int row = e.getY() / 95;
 
@@ -188,20 +251,9 @@ public class Screen extends JPanel implements ActionListener, MouseListener,KeyL
                 }
 
                 if(isLegal){
-                    moves++;
-                    int move = game.movePiece(selectedRow, selectedCol, row, col);
-                    if(move==0)
-                    {
-                        turn = (turn == 0) ? 1 : 0;
-                        isWhiteTurn = moves%2==0;
-                    }
-                    else if(move==1){
-                        endGame();
-                    }
-                    else{
-                        stalemate=true;
-                        endGame();
-                    }
+                    
+                    handlePlayerMove(selectedRow, selectedCol, row, col);
+
                     selectedRow = selectedCol = -1;
                     legalMoves.clear();
                     isSelecting = false;

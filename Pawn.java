@@ -88,10 +88,9 @@ public class Pawn extends Piece{
    
 
     @Override
-    public void drawMe(Graphics g, int r, int c) {
+    public void drawMe(Graphics g, double r, double c) {
         
-        int x = c*95; int y = r*95;
-
+        int x = (int) (c*95); int y = (int)(r*95);
         BufferedImage img = (super.getColor() == 0) ? whiteImg : blackImg;
         g.drawImage(img, x, y,95,95, null);
     }

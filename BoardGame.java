@@ -1,5 +1,8 @@
 
 import java.util.ArrayList;
+import java.net.URL;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 
 public class BoardGame {
     private Piece[][] board;
@@ -40,12 +43,38 @@ public class BoardGame {
     public int[] getEnPassantSquare() {
         return enPassantSquare;
     }
+    public void playMoveSound(boolean isCapture) {
+
+        if(isCapture){
+            try {
+                URL url = this.getClass().getClassLoader().getResource("capture.wav");
+                Clip clip = AudioSystem.getClip();
+                clip.open(AudioSystem.getAudioInputStream(url));
+                clip.start();
+            } catch (Exception exc) {
+                exc.printStackTrace(System.out);
+            }
+        }
+        else{
+            try {
+                URL url = this.getClass().getClassLoader().getResource("move.wav");
+                Clip clip = AudioSystem.getClip();
+                clip.open(AudioSystem.getAudioInputStream(url));
+                clip.start();
+            } catch (Exception exc) {
+                exc.printStackTrace(System.out);
+            }
+        }
+    }
 
     public int movePiece(int fromRow, int fromCol, int toRow, int toCol){
 
         Piece movingPiece = board[fromRow][fromCol];
         Piece capturedPiece = board[toRow][toCol];
         String moveNotation = notation.getAlgebraicNotation(fromRow, fromCol, toRow, toCol, this);
+
+        playMoveSound(capturedPiece!=null);
+
         if(movingPiece.getColor()==0){
             System.out.println();
         }
@@ -89,7 +118,8 @@ public class BoardGame {
                     rookFrom = 7;
                     rookTo = fromCol + 1;
                 }
-                movePiece(fromRow, rookFrom, toRow, rookTo);
+                board[toRow][rookTo] = board[fromRow][rookFrom];
+                board[fromRow][rookFrom]=null;
 
 
             }
