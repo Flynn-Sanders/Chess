@@ -4,6 +4,7 @@ import java.util.ArrayList;
 public class BoardGame {
     private Piece[][] board;
     private int[] enPassantSquare=null; 
+    private Notation notation = new Notation();
 
     public BoardGame(){
         board = new Piece[8][8];
@@ -44,8 +45,21 @@ public class BoardGame {
 
         Piece movingPiece = board[fromRow][fromCol];
         Piece capturedPiece = board[toRow][toCol];
+        String moveNotation = notation.getAlgebraicNotation(fromRow, fromCol, toRow, toCol, this);
+        if(movingPiece.getColor()==0){
+            System.out.println();
+        }
+        int length = moveNotation.length();
+        moveNotation+="         ";
+        for(int i=0; i<length; i++){
+            moveNotation=moveNotation.substring(0,moveNotation.length()-1);
+        }
+        System.out.print(moveNotation);
+        
         board[toRow][toCol] = movingPiece;
         board[fromRow][fromCol] = null;
+
+        
 
         if (movingPiece instanceof Pawn pawn) {
             pawn.setHasMoved();
@@ -85,7 +99,7 @@ public class BoardGame {
             r.setHasMoved();
         }
         
-        //System.out.println(getAlgebraicNotation(fromRow, fromCol, toRow, toCol, this));
+        
 
         ArrayList<int[]> moves = new ArrayList<>();
         for(int r=0; r<board.length; r++){
@@ -108,104 +122,7 @@ public class BoardGame {
         return 0;
 
     }
-    public String getAlgebraicNotation(int fromRow, int fromCol, int toRow, int toCol, BoardGame b) {
-        Piece[][] board = b.getBoardState();
-        Piece movingPiece = board[fromRow][fromCol];
-        Piece targetPiece = board[toRow][toCol];
-        boolean isCapture = targetPiece != null || (movingPiece instanceof Pawn && fromCol != toCol);
     
-        StringBuilder notation = new StringBuilder();
-    
-        // Castling
-        if (movingPiece instanceof King && Math.abs(toCol - fromCol) == 2) {
-            return toCol > fromCol ? "O-O" : "O-O-O";
-        }
-    
-        // Piece letter
-        String pieceLetter = "";
-        if (movingPiece!=null && !(movingPiece instanceof Pawn)) {
-            pieceLetter = getNotation(movingPiece);
-        }
-    
-        // Disambiguation 
-        boolean needsDisambiguation = false;
-        boolean disambiguateFile = false;
-        boolean disambiguateRank = false;
-    
-        for (int r = 0; r < 8; r++) {
-            for (int c = 0; c < 8; c++) {
-                if (r == fromRow && c == fromCol) continue;
-                Piece p = board[r][c];
-                if (p != null && p.getClass() == movingPiece.getClass() && p.getColor() == movingPiece.getColor()) {
-                    for (int[] move : p.findLegalMoves(r, c, this, true)) {
-                        if (move[0] == toRow && move[1] == toCol) {
-                            needsDisambiguation = true;
-                            if (fromCol != c) disambiguateFile = true;
-                            if (fromRow != r) disambiguateRank = true;
-                        }
-                    }
-                }
-            }
-        }
-    
-        notation.append(pieceLetter);
-    
-        if (needsDisambiguation) {
-            if (disambiguateFile) {
-                notation.append((char) ('a' + fromCol));
-            }
-            if (disambiguateRank || (!disambiguateFile)) {
-                notation.append(8 - fromRow);
-            }
-        }
-    
-        // Pawn capture must show file
-        if (movingPiece instanceof Pawn && isCapture) {
-            notation.append((char) ('a' + fromCol));
-        }
-    
-        if (isCapture) {
-            notation.append('x');
-        }
-    
-        // Destination square
-        notation.append((char) ('a' + toCol));
-        notation.append(8 - toRow);
-    
-        // Promotion (assumes auto-promotes to Queen)
-        if (movingPiece instanceof Pawn && (toRow == 0 || toRow == 7)) {
-            notation.append("=Q");
-        }
-    
-        // Check or Checkmate
-        BoardGame simulated = simulateMove(fromRow, fromCol, toRow, toCol);
-        int opponentColor = 1 - movingPiece.getColor();
-        if (simulated.isKingInCheck(opponentColor)) {
-            boolean hasEscape = false;
-            outer:
-            for (int r = 0; r < 8; r++) {
-                for (int c = 0; c < 8; c++) {
-                    Piece p = simulated.getBoardState()[r][c];
-                    if (p != null && p.getColor() == opponentColor) {
-                        for (int[] move : p.findLegalMoves(r, c, simulated, true)) {
-                            BoardGame next = simulated.simulateMove(r, c, move[0], move[1]);
-                            if (!next.isKingInCheck(opponentColor)) {
-                                hasEscape = true;
-                                break outer;
-                            }
-                        }
-                    }
-                }
-            }
-            if (hasEscape) {
-                notation.append('+');
-            } else {
-                notation.append('#');
-            }
-        }
-    
-        return notation.toString(); 
-    }
 
     public boolean isKingInCheck(int team){
         int kingRow=-1; int kingCol=-1;
@@ -232,18 +149,7 @@ public class BoardGame {
         }
         return false;
     }
-    public String getNotation(Piece p){
-        String s = "";
-        switch(p.getType()){
-            case PAWN -> s="";
-            case KNIGHT -> s="N";
-            case BISHOP -> s="B";
-            case ROOK -> s="R";
-            case QUEEN -> s="Q";
-            case KING -> s="K";
-        }
-        return s;
-    }
+    
     public BoardGame simulateMove(int fromRow, int fromCol, int toRow, int toCol) {
         BoardGame clone = this.deepCopy(); 
         clone.board[toRow][toCol] = clone.board[fromRow][fromCol];
