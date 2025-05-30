@@ -44,7 +44,7 @@ public class King extends Piece{
         if(!simulate){
             return psuedoMoves;
         }
-        if(!hasMoved){
+        if(!hasMoved && !board.isKingInCheck(super.getColor())){
             Piece rK = grid[row][col+3];
             Piece rQ = grid[row][col-4];
             if(rK instanceof Rook r){
